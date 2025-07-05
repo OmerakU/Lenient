@@ -11,7 +11,7 @@ import org.lwjgl.glfw.GLFW;
 public class MCF extends Module {
     private boolean pressed;
     public MCF() {
-        super("MCF", "Middle click friend", Category.MISC, true, false, false);
+        super("Дунд товч Найз", "Тоглогч дээр дунд товч дарснаар найздаа/ally нэмнэ.", Category.MISC, true, false, false);
     }
 
     @Override public void onTick() {
