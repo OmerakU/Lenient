@@ -5,7 +5,7 @@ import net.minecraft.item.Items;
 
 public class FastPlace extends Module {
     public FastPlace() {
-        super("FastPlace", "Exp bottle-ыг хурдан шиддэг болгоно.", Category.PLAYER, true, false, false);
+        super("FastExp", "Exp bottle-ыг хурдан шиддэг болгоно.", Category.PLAYER, true, false, false);
     }
 
     @Override public void onUpdate() {
