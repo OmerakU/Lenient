@@ -1,37 +1,38 @@
-package me.alpha432.oyvey.features.modules.combat;
+private LivingEntity lastTarget = null;
+private long lastHitTime = 0;
+private final long cooldownMs = 500; // 0.5 seconds
 
-import me.alpha432.oyvey.event.impl.PacketEvent;
-import me.alpha432.oyvey.event.system.Subscribe;
-import me.alpha432.oyvey.features.modules.Module;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
-import net.minecraft.network.protocol.game.ServerboundInteractPacket;
-import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+@Subscribe
+private void onUpdate(UpdateWalkingPlayerEvent event) {
+    if (mc.player == null || mc.level == null) return;
 
-public class Criticals extends Module {
-    public Criticals() {
-        super("Criticals", "Makes you do critical hits", Category.COMBAT);
+    double range = 4.5;
+    HitResult result = mc.player.pick(range, 0f, false);
+
+    if (!(result instanceof EntityHitResult ehr)) {
+        lastTarget = null;
+        return;
     }
 
-    @Subscribe
-    private void onPacketSend(PacketEvent.Send event) {
-        if (event.getPacket() instanceof ServerboundInteractPacket packet && packet.action.getType() == ServerboundInteractPacket.ActionType.ATTACK) {
-            Entity entity = mc.level.getEntity(packet.entityId);
-            if (entity == null
-                    || entity instanceof EndCrystal
-                    || !mc.player.onGround()
-                    || !(entity instanceof LivingEntity)) return;
-
-            boolean bl = mc.player.horizontalCollision;
-            mc.player.connection.send(new ServerboundMovePlayerPacket.Pos(mc.player.getX(), mc.player.getY() + 0.1f, mc.player.getZ(), false, bl));
-            mc.player.connection.send(new ServerboundMovePlayerPacket.Pos(mc.player.getX(), mc.player.getY(), mc.player.getZ(), false, bl));
-            mc.player.crit(entity);
-        }
+    if (!(ehr.getEntity() instanceof LivingEntity target)) {
+        lastTarget = null;
+        return;
     }
 
-    @Override
-    public String getDisplayInfo() {
-        return "Packet";
+    // cooldown check
+    long now = System.currentTimeMillis();
+    boolean canAct = (now - lastHitTime) >= cooldownMs;
+
+    if (canAct && target != null) {
+        mc.gameMode.attack(target); // actually swings at the entity
+        lastHitTime = now;
+        lastTarget = target;
+}
+
     }
+}
+
+private void doAction(LivingEntity target) {
+    // Safe placeholder (particles, sound, log, etc.)
+    sendMessage("Action triggered on: " + target.getName().getString());
 }
